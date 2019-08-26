@@ -2,23 +2,23 @@ package tech.meliora.academy.video.Video.dto;
 
 public class VideoMetadataDTO {
     
-    private int length; // in seconds
+    private long length; // in seconds
 
-    private int size; // in bytes
+    private long size; // in bytes
 
-    public int getLength() {
+    public long getLength() {
         return length;
     }
 
-    public void setLength(int length) {
+    public void setLength(long length) {
         this.length = length;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(long size) {
         this.size = size;
     }
 

@@ -1,11 +1,15 @@
 package tech.meliora.academy.video.Video;
 
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import tech.meliora.academy.video.Video.dto.VideoMetadataDTO;
+
+import java.io.*;
 
 @RestController
 @RequestMapping("/api")
@@ -21,16 +25,30 @@ public class VideoResource {
         return videoService.getVideoMetadata(url);
     }
 
-    @GetMapping("/video/get/{url}")
-    public ResponseEntity<byte[]> getFile(@PathVariable String url, @RequestParam Long from, @RequestParam Long to) {
+    // @RequestParam (required = false) Long from, @RequestParam Long to (ADD)
+    @GetMapping("/video")
+    public ResponseEntity<byte[]> getFile() {
 
-        HttpHeaders httpHeaders = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
 
-        byte[] rawFile = null;
+        File file = new File("/apps/video/jhi.mp4");
+        try {
+            InputStream targetStream = new FileInputStream(file);
+            byte[] media = StreamUtils.copyToByteArray(targetStream);
+            headers.setContentType(MediaType.valueOf("video/mp4"));
 
-        httpHeaders.setContentType(MediaType.valueOf("image/svg+xml"));
-        // rawFile = mediaItemService.getDefault(AlbumType.GENERAL);
+            return new ResponseEntity<>(media, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+            return new ResponseEntity<>(null, headers, HttpStatus.OK);
+        }
+    }
 
-        return new ResponseEntity<>(rawFile, httpHeaders, HttpStatus.OK);
+
+    @GetMapping("/video/full/{url}")
+    public ResponseEntity<ResourceRegion> getVideo(@PathVariable String url) {
+
+        return null;
+
     }
 }
