@@ -1,15 +1,16 @@
 package tech.meliora.academy.video.Video;
 
-import org.springframework.core.io.support.ResourceRegion;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import tech.meliora.academy.video.Video.dto.VideoMetadataDTO;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping("/api")
@@ -44,11 +45,29 @@ public class VideoResource {
         }
     }
 
+    @GetMapping("/video/get-by-range/{filename}")
+    public ResponseEntity<byte[]> getFileByRange(@PathVariable String filename, @RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end) {
+
+
+        try {
+            byte[] rawFile = videoService.getFile(filename, start, end);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.valueOf("video/mp4"));
+            return new ResponseEntity<>(rawFile, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/video/full/{url}")
-    public ResponseEntity<ResourceRegion> getVideo(@PathVariable String url) {
+    public ResponseEntity<Resource> getVideo(@PathVariable String url) throws MalformedURLException {
 
-        return null;
+        Resource video = videoService.getVideoResource(url);
 
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .contentType(MediaTypeFactory.getMediaType(video).orElse(MediaType.valueOf("video/mp4")))
+                .body(video);
     }
 }
